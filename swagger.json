@@ -1,0 +1,565 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Medical API",
+    "description": "API para gestión de consultas médicas",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3333",
+      "description": "Servidor de desarrollo"
+    }
+  ],
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "tags": ["Autenticación"],
+        "summary": "Registrar un nuevo usuario",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "firstName": { "type": "string", "example": "John" },
+                  "lastName": { "type": "string", "example": "Doe" },
+                  "email": { "type": "string", "format": "email", "example": "john@example.com" },
+                  "password": { "type": "string", "format": "password", "example": "secretpass" },
+                  "password_confirmation": { "type": "string", "format": "password", "example": "secretpass" }
+                },
+                "required": ["firstName", "lastName", "email", "password", "password_confirmation"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usuario creado exitosamente"
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Autenticación"],
+        "summary": "Iniciar sesión",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string", "format": "email", "example": "admin@medical.com" },
+                  "password": { "type": "string", "format": "password", "example": "Admin123!" }
+                },
+                "required": ["email", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login exitoso"
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": ["Autenticación"],
+        "summary": "Cerrar sesión",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Sesión cerrada exitosamente"
+          }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": ["Autenticación"],
+        "summary": "Obtener información del usuario actual",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Información del usuario"
+          }
+        }
+      }
+    },
+    "/medical-consultations": {
+      "get": {
+        "tags": ["Consultas Médicas"],
+        "summary": "Obtener lista de consultas médicas",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": { "type": "integer", "default": 1 }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": { "type": "integer", "default": 10 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de consultas médicas"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Consultas Médicas"],
+        "summary": "Crear nueva consulta médica",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MedicalConsultationCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Consulta médica creada"
+          }
+        }
+      }
+    },
+    "/medical-consultations/{id}": {
+      "get": {
+        "tags": ["Consultas Médicas"],
+        "summary": "Obtener una consulta médica por ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Consulta médica encontrada"
+          }
+        }
+      },
+      "put": {
+        "tags": ["Consultas Médicas"],
+        "summary": "Actualizar una consulta médica",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MedicalConsultationUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Consulta médica actualizada"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Consultas Médicas"],
+        "summary": "Eliminar una consulta médica",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Consulta médica eliminada"
+          }
+        }
+      }
+    },
+    "/appointments": {
+      "get": {
+        "tags": ["Citas"],
+        "summary": "Obtener lista de citas",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": { "type": "integer", "default": 1 }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": { "type": "integer", "default": 10 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de citas"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Citas"],
+        "summary": "Crear nueva cita",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AppointmentCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Cita creada"
+          }
+        }
+      }
+    },
+    "/appointments/{id}": {
+      "get": {
+        "tags": ["Citas"],
+        "summary": "Obtener una cita por ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cita encontrada"
+          }
+        }
+      },
+      "put": {
+        "tags": ["Citas"],
+        "summary": "Actualizar una cita",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AppointmentUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cita actualizada"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Citas"],
+        "summary": "Eliminar una cita",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cita eliminada"
+          }
+        }
+      }
+    },
+    "/roles": {
+      "get": {
+        "tags": ["Roles"],
+        "summary": "Obtener lista de roles",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": { "type": "integer", "default": 1 }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": { "type": "integer", "default": 10 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de roles"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Roles"],
+        "summary": "Crear nuevo rol",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoleCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Rol creado"
+          }
+        }
+      }
+    },
+    "/medical-records": {
+      "get": {
+        "tags": ["Registros Médicos"],
+        "summary": "Obtener lista de registros médicos",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": { "type": "integer", "default": 1 }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": { "type": "integer", "default": 10 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de registros médicos"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Registros Médicos"],
+        "summary": "Crear nuevo registro médico",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MedicalRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Registro médico creado"
+          }
+        }
+      }
+    },
+    "/medical-records/{id}": {
+      "get": {
+        "tags": ["Registros Médicos"],
+        "summary": "Obtener un registro médico por ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Registro médico encontrado"
+          }
+        }
+      },
+      "put": {
+        "tags": ["Registros Médicos"],
+        "summary": "Actualizar un registro médico",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MedicalRecordUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Registro médico actualizado"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Registros Médicos"],
+        "summary": "Eliminar un registro médico",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Registro médico eliminado"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "MedicalConsultationCreate": {
+        "type": "object",
+        "properties": {
+          "appointmentId": { "type": "integer" },
+          "patientId": { "type": "integer" },
+          "doctorId": { "type": "integer" },
+          "symptoms": { "type": "string" },
+          "diagnosis": { "type": "string" },
+          "treatment": { "type": "string" },
+          "followUpDate": { "type": "string", "format": "date-time" }
+        },
+        "required": ["appointmentId", "patientId", "doctorId"]
+      },
+      "MedicalConsultationUpdate": {
+        "type": "object",
+        "properties": {
+          "symptoms": { "type": "string" },
+          "diagnosis": { "type": "string" },
+          "treatment": { "type": "string" },
+          "followUpDate": { "type": "string", "format": "date-time" }
+        }
+      },
+      "AppointmentCreate": {
+        "type": "object",
+        "properties": {
+          "patientId": { "type": "integer" },
+          "doctorId": { "type": "integer" },
+          "appointmentDate": { "type": "string", "format": "date-time" },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "confirmed", "cancelled", "completed"]
+          },
+          "notes": { "type": "string" }
+        },
+        "required": ["patientId", "doctorId", "appointmentDate"]
+      },
+      "AppointmentUpdate": {
+        "type": "object",
+        "properties": {
+          "appointmentDate": { "type": "string", "format": "date-time" },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "confirmed", "cancelled", "completed"]
+          },
+          "notes": { "type": "string" }
+        }
+      },
+      "RoleCreate": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" }
+        },
+        "required": ["name"]
+      },
+      "MedicalRecordCreate": {
+        "type": "object",
+        "properties": {
+          "userId": { "type": "integer" },
+          "weight": { "type": "number", "description": "Peso en kilogramos" },
+          "height": { "type": "number", "description": "Altura en metros" },
+          "bmi": { "type": "number", "description": "Índice de masa corporal" },
+          "bodyFatPercentage": { "type": "number", "description": "Porcentaje de grasa corporal" },
+          "bloodType": {
+            "type": "string",
+            "enum": ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
+            "description": "Tipo de sangre"
+          }
+        },
+        "required": ["userId", "weight", "height", "bloodType"]
+      },
+      "MedicalRecordUpdate": {
+        "type": "object",
+        "properties": {
+          "weight": { "type": "number", "description": "Peso en kilogramos" },
+          "height": { "type": "number", "description": "Altura en metros" },
+          "bmi": { "type": "number", "description": "Índice de masa corporal" },
+          "bodyFatPercentage": { "type": "number", "description": "Porcentaje de grasa corporal" },
+          "bloodType": {
+            "type": "string",
+            "enum": ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
+            "description": "Tipo de sangre"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
