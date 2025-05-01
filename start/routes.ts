@@ -18,6 +18,9 @@ import UserProfilesController from '#controllers/user_profiles_controller'
 import AppointmentsController from '#controllers/appointments_controller'
 import SwaggerController from '#controllers/swagger_controller'
 import PermissionsController from '#controllers/permissions_controller'
+import ExamsController from '#controllers/exams_controller'
+import ExamOrdersController from '#controllers/exam_orders_controller'
+import SpecialtiesController from '#controllers/specialties_controller'
 
 // Rutas de documentación
 router.get('/docs', [SwaggerController, 'serve'])
@@ -115,5 +118,38 @@ router.group(() => {
       router.delete('/:id', [PermissionsController, 'destroy'])
     })
     .prefix('/permissions')
+
+  // Rutas de exámenes
+  router
+    .group(() => {
+      router.get('/', [ExamsController, 'index'])
+      router.post('/', [ExamsController, 'store'])
+      router.get('/:id', [ExamsController, 'show'])
+      router.put('/:id', [ExamsController, 'update'])
+      router.delete('/:id', [ExamsController, 'destroy'])
+    })
+    .prefix('/exams')
+
+  // Rutas de órdenes de exámenes
+  router
+    .group(() => {
+      router.get('/', [ExamOrdersController, 'index'])
+      router.post('/', [ExamOrdersController, 'store'])
+      router.get('/:id', [ExamOrdersController, 'show'])
+      router.put('/:id', [ExamOrdersController, 'update'])
+      router.delete('/:id', [ExamOrdersController, 'destroy'])
+    })
+    .prefix('/exam-orders')
+
+  // Rutas de especialidades
+  router
+    .group(() => {
+      router.get('/', [SpecialtiesController, 'index'])
+      router.post('/', [SpecialtiesController, 'store'])
+      router.get('/:id', [SpecialtiesController, 'show'])
+      router.put('/:id', [SpecialtiesController, 'update'])
+      router.delete('/:id', [SpecialtiesController, 'destroy'])
+    })
+    .prefix('/specialties')
 
 }).use(middleware.auth())

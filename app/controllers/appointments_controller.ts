@@ -6,12 +6,21 @@ export default class AppointmentsController {
   async index({ request, response }: HttpContext) {
     const page = request.input('page', 1)
     const limit = request.input('limit', 10)
+    const type = request.input('type')
 
-    const appointments = await Appointment.query()
+    const query = Appointment.query()
       .preload('patient')
       .preload('doctor')
-      .paginate(page, limit)
+      .preload('consultation')
+      .preload('examOrderExam', (query) => {
+        query.preload('exam')
+      })
 
+    if (type) {
+      query.where('type', type)
+    }
+
+    const appointments = await query.paginate(page, limit)
     return response.ok(appointments)
   }
 
@@ -21,6 +30,11 @@ export default class AppointmentsController {
 
     await appointment.load('patient')
     await appointment.load('doctor')
+    await appointment.load('consultation')
+    await appointment.load('examOrderExam', (query) => {
+      query.preload('exam')
+    })
+
     return response.created({ appointment })
   }
 
@@ -29,6 +43,10 @@ export default class AppointmentsController {
       .where('id', params.id)
       .preload('patient')
       .preload('doctor')
+      .preload('consultation')
+      .preload('examOrderExam', (query) => {
+        query.preload('exam')
+      })
       .firstOrFail()
 
     return response.ok({ appointment })
@@ -39,8 +57,14 @@ export default class AppointmentsController {
     const data = await updateAppointmentValidator.validate(request.all())
 
     await appointment.merge(data).save()
+
     await appointment.load('patient')
     await appointment.load('doctor')
+    await appointment.load('consultation')
+    await appointment.load('examOrderExam', (query) => {
+      query.preload('exam')
+    })
+
     return response.ok({ appointment })
   }
 

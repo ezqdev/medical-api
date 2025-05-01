@@ -10,6 +10,9 @@ import MedicalRecord from './medical_record.js'
 import UserProfile from './user_profile.js'
 import Allergy from './allergy.js'
 import Appointment from './appointment.js'
+import MedicalConsultation from './medical_consultation.js'
+import ExamOrder from './exam_order.js'
+import Specialty from './specialty.js'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
   uids: ['email'],
@@ -35,8 +38,32 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column()
   declare roleId: number | null
 
+  @column()
+  declare documentType: string
+
+  @column()
+  declare documentNumber: string
+
+  @column()
+  declare phone: string | null
+
+  @column()
+  declare address: string | null
+
+  @column.date()
+  declare birthDate: DateTime | null
+
+  @column()
+  declare gender: string | null
+
+  @column()
+  declare specialtyId: number | null
+
   @belongsTo(() => Role)
   declare role: BelongsTo<typeof Role>
+
+  @belongsTo(() => Specialty)
+  declare specialty: BelongsTo<typeof Specialty>
 
   @hasOne(() => MedicalRecord)
   declare medicalRecord: HasOne<typeof MedicalRecord>
@@ -58,6 +85,26 @@ export default class User extends compose(BaseModel, AuthFinder) {
     foreignKey: 'doctorId',
   })
   declare doctorAppointments: HasMany<typeof Appointment>
+
+  @hasMany(() => MedicalConsultation, {
+    foreignKey: 'patientId',
+  })
+  declare patientConsultations: HasMany<typeof MedicalConsultation>
+
+  @hasMany(() => MedicalConsultation, {
+    foreignKey: 'doctorId',
+  })
+  declare doctorConsultations: HasMany<typeof MedicalConsultation>
+
+  @hasMany(() => ExamOrder, {
+    foreignKey: 'patientId',
+  })
+  declare patientExamOrders: HasMany<typeof ExamOrder>
+
+  @hasMany(() => ExamOrder, {
+    foreignKey: 'doctorId',
+  })
+  declare doctorExamOrders: HasMany<typeof ExamOrder>
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

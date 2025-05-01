@@ -1,22 +1,23 @@
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
-import Role from '#models/role'
 import User from '#models/user'
+import Role from '#models/role'
+import hash from '@adonisjs/core/services/hash'
 
 export default class extends BaseSeeder {
   async run() {
-    // Crear rol ADMIN
-    const adminRole = await Role.create({
-      name: 'ADMIN',
-      description: 'Administrador del sistema con acceso total'
-    })
+    const adminRole = await Role.findByOrFail('name', 'admin')
 
-    // Crear usuario administrador usando el modelo User directamente
-    const user = new User()
-    user.firstName = 'Admin'
-    user.lastName = 'System'
-    user.email = 'admin@medical.com'
-    user.password = 'Admin123!'  // El modelo se encargará del hash
-    user.roleId = adminRole.id
-    await user.save()
+    await User.updateOrCreate(
+      { email: 'admin@example.com' },
+      {
+        firstName: 'Admin',
+        lastName: 'User',
+        email: 'admin@example.com',
+        password: await hash.make('admin123'),
+        roleId: adminRole.id,
+        documentType: 'CC',
+        documentNumber: '1234567890'
+      }
+    )
   }
 }

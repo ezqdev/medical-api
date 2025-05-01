@@ -3,6 +3,7 @@ import { BaseModel, column, belongsTo, hasOne } from '@adonisjs/lucid/orm'
 import type { BelongsTo, HasOne } from '@adonisjs/lucid/types/relations'
 import User from './user.js'
 import MedicalConsultation from './medical_consultation.js'
+import ExamOrderExam from './exam_order_exam.js'
 
 export default class Appointment extends BaseModel {
   @column({ isPrimary: true })
@@ -13,6 +14,12 @@ export default class Appointment extends BaseModel {
 
   @column()
   declare doctorId: number
+
+  @column()
+  declare type: 'consultation' | 'exam'
+
+  @column()
+  declare examOrderExamId: number | null
 
   @column.dateTime()
   declare appointmentDate: DateTime
@@ -44,4 +51,7 @@ export default class Appointment extends BaseModel {
 
   @hasOne(() => MedicalConsultation)
   declare consultation: HasOne<typeof MedicalConsultation>
+
+  @belongsTo(() => ExamOrderExam)
+  declare examOrderExam: BelongsTo<typeof ExamOrderExam>
 }
