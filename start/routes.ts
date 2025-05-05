@@ -21,6 +21,7 @@ import PermissionsController from '#controllers/permissions_controller'
 import ExamsController from '#controllers/exams_controller'
 import ExamOrdersController from '#controllers/exam_orders_controller'
 import SpecialtiesController from '#controllers/specialties_controller'
+import TimeBlockController from '#controllers/time_block_controller'
 
 // Rutas de documentación
 router.get('/docs', [SwaggerController, 'serve'])
@@ -36,8 +37,8 @@ router.get('/', async () => {
 router.group(() => {
   router.post('/register', [AuthController, 'register'])
   router.post('/login', [AuthController, 'login'])
-  router.post('/logout', [AuthController, 'logout']).use(middleware.auth())
-  router.get('/me', [AuthController, 'me']).use(middleware.auth())
+  router.post('/logout', [AuthController, 'logout']).use(middleware.auth({}))
+  router.get('/me', [AuthController, 'me']).use(middleware.auth({}))
 }).prefix('/auth')
 
 // Rutas protegidas - requieren autenticación
@@ -152,4 +153,15 @@ router.group(() => {
     })
     .prefix('/specialties')
 
-}).use(middleware.auth())
+  // Rutas de bloques de tiempo
+  router
+    .group(() => {
+      router.get('/', [TimeBlockController, 'index'])
+      router.post('/', [TimeBlockController, 'store'])
+      router.get('/:id', [TimeBlockController, 'show'])
+      router.put('/:id', [TimeBlockController, 'update'])
+      router.delete('/:id', [TimeBlockController, 'destroy'])
+    })
+    .prefix('/time-blocks')
+
+}).use(middleware.auth({}))
